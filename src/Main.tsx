@@ -10,9 +10,11 @@ import {useGameLogic} from './hooks/useGameLogic';
 import GameGrid from './components/GameGrid';
 
 const Main = () => {
-  const {data, handleUp, handleDown, handleLeft, handleRight} = useGameLogic();
+  const {data, step, handleUp, handleDown, handleLeft, handleRight} =
+    useGameLogic();
   return (
     <SafeAreaView style={styles.root}>
+      <Text style={styles.title}>{step}</Text>
       <GameGrid data={data} />
       <View style={styles.footer}>
         <TouchableOpacity onPress={handleUp} style={styles.btn}>
@@ -51,5 +53,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  title: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 20,
   },
 });

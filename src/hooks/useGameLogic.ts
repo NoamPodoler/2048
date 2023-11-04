@@ -1,19 +1,26 @@
 import {useReducer} from 'react';
 import {rotate} from '../utils/rotate';
 
+type State = {
+  data: number[][];
+  step: number;
+};
+
 type Actions = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
-const reducer = (state: number[][], action: Actions) => {
+const reducer = (state: State, action: Actions) => {
+  let newData;
   if (action === 'DOWN') {
-    return handleChange(state);
+    newData = handleChange(state.data);
   } else if (action === 'UP') {
-    return rotate(rotate(handleChange(rotate(rotate(state)))));
+    newData = rotate(rotate(handleChange(rotate(rotate(state.data)))));
   } else if (action === 'LEFT') {
-    return rotate(handleChange(rotate(rotate(rotate(state)))));
+    newData = rotate(handleChange(rotate(rotate(rotate(state.data)))));
   } else if (action === 'RIGHT') {
-    return rotate(rotate(rotate(handleChange(rotate(state)))));
+    newData = rotate(rotate(rotate(handleChange(rotate(state.data)))));
   }
-  return state;
+
+  return {data: newData ?? state.data, step: state.step + 1};
 };
 
 const handleChange = (state: number[][]) => {
@@ -46,19 +53,41 @@ const handleChange = (state: number[][]) => {
       }
     }
   }
+
+  const random = Math.random();
+  let newNumbersAmount = random < 0.2 ? 0 : random < 0.8 ? 1 : 2;
+  // Create new numbers in empty spaces
+  for (let i = 0; i < state.length; i++) {
+    for (let j = 0; j < state[i].length - 1; j++) {
+      if (newState[i][j] === 0 && newNumbersAmount) {
+        newNumbersAmount--;
+        newState[i][j] = Math.random() > 0.67 ? 2 : 4;
+      }
+    }
+  }
+
   return newState;
 };
 
+const initialState = {
+  data: [
+    [2, 2, 0, 4, 0],
+    [0, 0, 2, 2, 2],
+    [0, 0, 0, 0, 0],
+    [2, 0, 0, 0, 0],
+    [2, 0, 0, 2, 2],
+  ],
+  step: 0,
+};
+
 export const useGameLogic = () => {
-  const [data, dispatch] = useReducer(reducer, [
-    [0, 2, 0, 4],
-    [4, 0, 2, 0],
-    [2, 4, 4, 0],
-    [2, 4, 4, 4],
-  ]);
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const {data, step} = state;
 
   return {
     data,
+    step,
     handleUp: () => dispatch('UP'),
     handleDown: () => dispatch('DOWN'),
     handleLeft: () => dispatch('LEFT'),
