@@ -1,5 +1,8 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
+import {Gesture, GestureDetector} from 'react-native-gesture-handler';
+import {useGameLogic} from '../hooks/useGameLogic';
+import {runOnJS} from 'react-native-reanimated';
 
 const GAP = 10;
 const COLORS = [
@@ -23,32 +26,51 @@ const COLORS = [
   '#FF4500',
   '#9400D3',
 ];
+const translateValue = 50;
 
-type Props = {
-  data: number[][];
-};
+type Props = ReturnType<typeof useGameLogic>;
 
-const GameGrid = ({data}: Props) => {
+const GameGrid = ({
+  data,
+  handleDown,
+  handleLeft,
+  handleRight,
+  handleUp,
+}: Props) => {
+  const gestureHandler = Gesture.Pan().onEnd(e => {
+    if (e.translationX > translateValue) {
+      runOnJS(handleRight)();
+    } else if (e.translationX < -translateValue) {
+      runOnJS(handleLeft)();
+    } else if (e.translationY > translateValue) {
+      runOnJS(handleDown)();
+    } else if (e.translationY < -translateValue) {
+      runOnJS(handleUp)();
+    }
+  });
+
   return (
-    <View style={styles.container}>
-      {data.map((row, rowIndex) => (
-        <View key={rowIndex} style={styles.row}>
-          {row.map((number, colIndex) => (
-            <View
-              key={colIndex}
-              style={[
-                styles.item,
-                {
-                  backgroundColor:
-                    number === 0 ? 'white' : COLORS[Math.log2(number)],
-                },
-              ]}>
-              {number ? <Text style={styles.text}>{number}</Text> : <></>}
-            </View>
-          ))}
-        </View>
-      ))}
-    </View>
+    <GestureDetector gesture={gestureHandler}>
+      <View style={styles.container}>
+        {data.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.row}>
+            {row.map((number, colIndex) => (
+              <View
+                key={colIndex}
+                style={[
+                  styles.item,
+                  {
+                    backgroundColor:
+                      number === 0 ? 'white' : COLORS[Math.log2(number)],
+                  },
+                ]}>
+                {number ? <Text style={styles.text}>{number}</Text> : <></>}
+              </View>
+            ))}
+          </View>
+        ))}
+      </View>
+    </GestureDetector>
   );
 };
 
