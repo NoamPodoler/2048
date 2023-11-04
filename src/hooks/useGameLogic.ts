@@ -69,19 +69,13 @@ const handleChange = (state: number[][]) => {
   return newState;
 };
 
-const initialState = {
-  data: [
-    [2, 2, 0, 4, 0],
-    [0, 0, 2, 2, 2],
-    [0, 0, 0, 0, 0],
-    [2, 0, 0, 0, 0],
-    [2, 0, 0, 2, 2],
-  ],
-  step: 0,
-};
-
-export const useGameLogic = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+export const useGameLogic = (length = 5) => {
+  const [state, dispatch] = useReducer(reducer, {
+    data: Array(length)
+      .fill(0)
+      .map(() => Array(length).fill(0).map(generateNumber)),
+    step: 0,
+  });
 
   const {data, step} = state;
 
@@ -94,3 +88,8 @@ export const useGameLogic = () => {
     handleRight: () => dispatch('RIGHT'),
   };
 };
+
+//
+
+const generateNumber = () =>
+  Math.random() < 0.25 ? (Math.random() < 0.75 ? 2 : 4) : 0;
